@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGVsbGlwc2UgY3g9IjE2IiBjeT0iMjIiIHJ4PSIxNSIgcnk9IjQiIGZpbGw9IiNjOWE4NGMiLz4KICA8cGF0aCBkPSJNNyAyMiBROCA4IDE2IDQgUTI0IDggMjUgMjIgWiIgZmlsbD0iI2U4ZDVhMCIvPgogIDxlbGxpcHNlIGN4PSIxNiIgY3k9IjQiIHJ4PSI0IiByeT0iMiIgZmlsbD0iI2M5YTg0YyIvPgogIDxwYXRoIGQ9Ik05IDE3IFExMSAxMCAxNiA3IFEyMSAxMCAyMyAxNyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjY2UxMTI2IiBzdHJva2Utd2lkdGg9IjEuMiIvPgogIDxjaXJjbGUgY3g9IjIiIGN5PSIyMiIgcj0iMS44IiBmaWxsPSIjY2UxMTI2Ii8+CiAgPGNpcmNsZSBjeD0iMzAiIGN5PSIyMiIgcj0iMS44IiBmaWxsPSIjY2UxMTI2Ii8+CiAgPGNpcmNsZSBjeD0iNiIgY3k9IjI1IiByPSIxLjIiIGZpbGw9IiMwMDY4NDciLz4KICA8Y2lyY2xlIGN4PSIyNiIgY3k9IjI1IiByPSIxLjIiIGZpbGw9IiMwMDY4NDciLz4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SenorCV</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,600;0,700;1,300;1,600&family=Lora:ital,wght@0,400;0,600;1,400&family=Raleway:wght@300;400;600;700&family=Lobster&display=swap" rel="stylesheet">
@@ -1320,15 +1321,14 @@ async function _doPaginate() {
   var pageH_px = Math.round(297 * pxPerMm); // one A4 page in canvas px
 
   // Margins (in canvas px)
-  var marginTop_px = Math.round(8  * pxPerMm); // top padding page 1
   var marginBot_px = Math.round(12 * pxPerMm); // bottom padding every page
   var hdrH_mm      = 11;
   var hdrH_px      = Math.round(hdrH_mm * pxPerMm); // header on pages 2+
 
-  // Content area per page (how many source px fit on each page)
-  // Page 1: pageH_px - marginTop - marginBot
-  // Page N: pageH_px - hdrH_px - marginBot
-  var contentPerPage1 = pageH_px - marginTop_px - marginBot_px;
+  // Content area per page
+  // Page 1: full page height minus bottom margin only (content starts at very top)
+  // Page N: height minus header minus bottom margin
+  var contentPerPage1 = pageH_px - marginBot_px;
   var contentPerPageN = pageH_px - hdrH_px - marginBot_px;
 
   var numPages = 1;
@@ -1357,10 +1357,9 @@ async function _doPaginate() {
     ctx.fillRect(0, 0, cW, pageH_px);
 
     if(pg === 0) {
-      // Page 1: content starts after top margin, ends before bottom margin
-      var srcStart = 0;
-      var drawH    = Math.min(contentPerPage1, cH);
-      ctx.drawImage(fullCanvas, 0, srcStart, cW, drawH, 0, marginTop_px, cW, drawH);
+      // Page 1: content fills from top, stops before bottom margin
+      var drawH = Math.min(contentPerPage1, cH);
+      ctx.drawImage(fullCanvas, 0, 0, cW, drawH, 0, 0, cW, drawH);
 
     } else {
       // Pages 2+: calculate which source rows to show
@@ -2252,10 +2251,9 @@ async function doExport() {
     var pxMm = cW/A4W;
     var pgH  = Math.round(A4H*pxMm);
     // Same margins as preview for consistency
-    var mTop = Math.round(8  * pxMm);
     var mBot = Math.round(12 * pxMm);
     var hdrH = Math.round(11 * pxMm);
-    var cpP1 = pgH - mTop - mBot;
+    var cpP1 = pgH - mBot;
     var cpPN = pgH - hdrH - mBot;
     var nPg  = 1;
     if(cH > cpP1) nPg += Math.ceil((cH - cpP1) / cpPN);
@@ -2267,7 +2265,7 @@ async function doExport() {
       ctx.fillStyle='#fff'; ctx.fillRect(0,0,cW,pgH);
       if(pg===0){
         var dh=Math.min(cpP1,cH);
-        ctx.drawImage(fullCanvas,0,0,cW,dh,0,mTop,cW,dh);
+        ctx.drawImage(fullCanvas,0,0,cW,dh,0,0,cW,dh);
       } else {
         var sy=cpP1+(pg-1)*cpPN, sh=Math.min(cpPN,cH-sy);
         ctx.fillStyle='#fff'; ctx.fillRect(0,0,cW,hdrH);
