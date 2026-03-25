@@ -181,7 +181,7 @@ input[type=range]{accent-color:var(--gold);width:100%}
 .prev-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:3px}
 
 /* CV PAPER */
-.cv-paper{width:210mm;min-height:297mm;background:white;position:absolute;left:-9999px;top:0;overflow:visible;display:block;font-size:100%}
+.cv-paper{width:210mm;background:white;position:absolute;left:-9999px;top:0;overflow:visible;display:block;font-size:100%}
 /* Page-break ruler lines drawn by JS */
 .cv-page-box{width:210mm;height:297mm;flex-shrink:0;box-shadow:0 20px 70px rgba(0,0,0,.65);transform-origin:top center;overflow:hidden;position:relative;transition:transform .25s;background:#fff;cursor:default}
 .cv-page-canvas{display:block;width:100%}
@@ -1331,8 +1331,10 @@ async function _doPaginate() {
   var contentPerPage1 = pageH_px - marginBot_px;
   var contentPerPageN = pageH_px - hdrH_px - marginBot_px;
 
+  // Only add extra pages when content ACTUALLY exceeds page 1
+  // Use a small threshold to avoid floating point causing spurious page 2
   var numPages = 1;
-  if(cH > contentPerPage1) {
+  if(cH > contentPerPage1 + 4) {
     numPages += Math.ceil((cH - contentPerPage1) / contentPerPageN);
   }
 
